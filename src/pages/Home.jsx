@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SearchBar from "../components/SearchBar";
 import MovieCard from "../components/MovieCard";
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 
 
@@ -11,47 +11,51 @@ function Home() {
   const [sortOrder, setSortOrder] = useState("");
   const [loading, setLoading] = useState(false);
   const location = useLocation()
+  const navigate = useNavigate()
 
   const API_KEY = import.meta.env.VITE_OMDB_API_KEY;
 
-const fetchMovies = async (query) => {
-  try {
-    setLoading(true)
+useEffect(() => {
+  const fetchMovies = async (query) => {
+    try {
+      setLoading(true)
 
-    const response = await fetch(
-      `https://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
-    )
+      const response = await fetch(
+        `https://www.omdbapi.com/?apikey=${API_KEY}&s=${query}`
+      )
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (data.Search) {
-      setMovies(data.Search)
-    } else {
-      setMovies([])
+      if (data.Search) {
+        setMovies(data.Search)
+      } else {
+        setMovies([])
+      }
+
+    } catch (error) {
+      console.error("Error fetching movies:", error)
+    } finally {
+      setLoading(false)
     }
-
-  } catch (error) {
-    console.error("Error fetching movies:", error)
-  } finally {
-    setLoading(false)
   }
-}
 
-  useEffect(() => {
   const params = new URLSearchParams(location.search)
   const queryParam = params.get("query")
 
   if (queryParam) {
+    setSearchTerm(queryParam)
     fetchMovies(queryParam)
   } else {
     fetchMovies("batman")
   }
-}, [location.search])
-  const handleSearch = () => {
-    if (searchTerm.trim() !== "") {
-      fetchMovies(searchTerm);
-    }
-  };
+
+}, [location.search, API_KEY])
+
+const handleSearch = () => {
+  if (searchTerm.trim() !== "") {
+    navigate(`/search?query=${searchTerm}`)
+  }
+}
 
   // 🔥 Sorting logic
   // Remove duplicate imdbIDs
