@@ -5,8 +5,11 @@ function MovieCard({ movie }) {
     <div className="movie-card">
       <Link to={`/movie/${movie.imdbID}`}>
         <img
-          src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450"}
+          src={movie.Poster !== "N/A" ? movie.Poster : "https://via.placeholder.com/300x450?text=No+Poster"}
           alt={movie.Title}
+          onError={(e) => {
+            e.target.src = "/public/placeholder.png"
+          }}
         />
         <div className="movie-info">
           <h3>{movie.Title}</h3>
